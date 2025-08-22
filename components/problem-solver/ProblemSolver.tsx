@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '@clerk/nextjs';
 
 interface ProblemWithStarterCode extends Problem {
   starter_code_js: string;
@@ -35,6 +36,7 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
   const [loading, setLoading] = useState(false);
   const [runResult, setRunResult] = useState<any>(null);
   const { toast } = useToast();
+  const { getToken } = useAuth();
   const [language, setLanguage] = useState('javascript');
   const [code, setCode] = useState(typedProblem.starter_code_js);
   const [testCases, setTestCases] = useState<any[]>(typedProblem.test_cases || []);
@@ -133,9 +135,13 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
         variant: 'default',
       });
       try {
+        const token = await getToken();
         const response = await fetch('/api/submissions', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
           body: JSON.stringify({
             problemId: problem.id,
             code: latestCodeRef.current,
@@ -148,21 +154,6 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
         // [DEBUG] console.log('[AutoSubmit] Response:', response.status, result);
         if (response.ok) {
           setSubmissionSuccess(true);
-          setSubmissions(prev => [
-            {
-              id: result.submissionId,
-              user_id: String(latestUserIdRef.current),
-              problem_id: problem.id,
-              code: latestCodeRef.current,
-              language: latestLanguageRef.current,
-              status: result.status,
-              runtime: result.runtime,
-              memory_usage: result.memory,
-              error_message: result.error,
-              submitted_at: new Date().toISOString()
-            },
-            ...prev
-          ]);
           setActiveLeftTab('submissions');
           toast({
             title: 'Auto-submitted!',
@@ -214,7 +205,12 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
   useEffect(() => {
     const pollSubmissions = async () => {
       try {
-        const response = await fetch(`/api/submissions?problemId=${problem.id}`);
+        const token = await getToken();
+        const response = await fetch(`/api/submissions?problemId=${problem.id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
         if (response.ok) {
           const data = await response.json();
           setSubmissions(data.submissions || []);
@@ -312,10 +308,12 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
     setActiveLeftTab('submissions');
 
     try {
+      const token = await getToken();
       const response = await fetch('/api/submissions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           problemId: problem.id,
@@ -346,10 +344,17 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
         setActiveLeftTab('submissions');
         
         // Force immediate refresh of submissions
-        const refreshResponse = await fetch(`/api/submissions?problemId=${problem.id}`);
+        const refreshToken = await getToken();
+        const refreshResponse = await fetch(`/api/submissions?problemId=${problem.id}`, {
+          headers: {
+            'Authorization': `Bearer ${refreshToken}`,
+          },
+        });
         if (refreshResponse.ok) {
           const data = await refreshResponse.json();
-          setSubmissions(data.submissions || []);
+          const newSubmissions = data.submissions || [];
+          // Replace all submissions with fresh data from server
+          setSubmissions(newSubmissions);
         }
       } else {
         throw new Error(typeof result.error === 'string' ? result.error : JSON.stringify(result.error || 'Submission failed'));

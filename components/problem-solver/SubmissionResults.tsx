@@ -49,8 +49,8 @@ export function SubmissionResults({ submissions, loading }: SubmissionResultsPro
       <h2 className="text-xl font-semibold">Your Submissions</h2>
       
       <div className="space-y-3">
-        {submissions.map((submission) => (
-          <Card key={submission.id}>
+        {submissions.map((submission, index) => (
+          <Card key={`${submission.id}-${index}`}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
