@@ -13,13 +13,16 @@ export async function POST(request: NextRequest) {
 
     const { problemId, code, language } = await request.json();
 
-    // Validate required fields
-    if (!problemId || !code || !language) {
+    // Validate required fields (code can be empty for auto-submit)
+    if (!problemId || !language) {
       return NextResponse.json(
-        { error: 'Missing required fields: problemId, code, or language' },
+        { error: 'Missing required fields: problemId or language' },
         { status: 400 }
       );
     }
+
+    // If code is empty, treat it as an empty submission
+    const submissionCode = code || '';
 
     // Get problem and test cases
     const { data: problem } = await supabaseServer
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: userId,
         problem_id: problemId,
-        code,
+        code: submissionCode,
         language,
         status: 'Pending'
       })
@@ -66,9 +69,9 @@ export async function POST(request: NextRequest) {
 
     for (const testCase of testCases) {
       try {
-        const token = await executeCode(code, language, testCase.input);
+        const token = await executeCode(submissionCode, language, testCase.input);
         let result = await getSubmissionResult(token);
-        
+
         // Poll for result
         let attempts = 0;
         while (result.status.id <= 2 && attempts < 10) {
@@ -145,7 +148,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Submission error:', error);
-    
+
     // Provide more specific error messages based on the error type
     let errorMessage = 'Failed to process submission';
     if (error instanceof Error) {
@@ -153,7 +156,7 @@ export async function POST(request: NextRequest) {
     } else if (typeof error === 'object' && error !== null) {
       errorMessage = JSON.stringify(error);
     }
-    
+
     return NextResponse.json(
       { error: errorMessage },
       { status: 500 }

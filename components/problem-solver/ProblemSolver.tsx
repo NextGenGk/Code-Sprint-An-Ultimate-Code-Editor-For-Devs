@@ -104,25 +104,18 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
   // --- Auto-submit on attempted leave if not already submitted ---
   // Move autoSubmit out of useEffect so it can be called from paste handler
   const autoSubmit = async (reason: string) => {
-    // [DEBUG] console.log(`[AutoSubmit] [START] Called with reason: ${reason}`);
-    // [DEBUG] console.log('[AutoSubmit] [PRE-CHECK] Condition values:', {
-    //   submissionSuccess,
-    //   pendingSubmission,
-    //   userId: latestUserIdRef.current,
-    //   code: latestCodeRef.current,
-    //   codeLength: latestCodeRef.current ? latestCodeRef.current.length : 0,
-    //   codeTrimmedLength: latestCodeRef.current ? latestCodeRef.current.trim().length : 0,
-    //   starterCode: starterCodeRef.current,
-    //   codeEqualsStarter: latestCodeRef.current === starterCodeRef.current
-    // });
+    console.log(`[AutoSubmit] Called with reason: ${reason}`);
+    console.log('[AutoSubmit] Checking conditions:', {
+      pendingSubmission,
+      userId: latestUserIdRef.current,
+      problemId: problem.id
+    });
     if (
-      !submissionSuccess &&
       !pendingSubmission &&
       latestUserIdRef.current &&
-      latestCodeRef.current &&
-      latestLanguageRef.current &&
       problem.id
     ) {
+      console.log('[AutoSubmit] Submitting code...');
       // [DEBUG] console.log('[AutoSubmit] [SUBMIT] Attempting submission with:', {
       //   problemId: problem.id,
       //   code: latestCodeRef.current,
@@ -138,14 +131,14 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
         const token = await getToken();
         const response = await fetch('/api/submissions', {
           method: 'POST',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({
             problemId: problem.id,
-            code: latestCodeRef.current,
-            language: latestLanguageRef.current,
+            code: latestCodeRef.current || '',
+            language: latestLanguageRef.current || 'javascript',
             autoSubmitted: true,
             submittedAt: new Date().toISOString(),
           }),
@@ -182,10 +175,19 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
 
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden) autoSubmit('visibilitychange');
+      if (document.hidden) {
+        console.log('[Tab Switch] Detected');
+        autoSubmit('tab switch').catch(err => console.error('[Error]:', err));
+      }
     };
+
+    const handleBlur = () => {
+      console.log('[App Switch] Window blur');
+      autoSubmit('app switch').catch(err => console.error('[Error]:', err));
+    };
+
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      autoSubmit('beforeunload');
+      autoSubmit('page close').catch(err => console.error('[Error]:', err));
       if (pendingSubmission) {
         e.preventDefault();
         e.returnValue = '';
@@ -193,10 +195,14 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
       }
       return undefined;
     };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleBlur);
     window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleBlur);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [problem.id, submissionSuccess, pendingSubmission, toast]);
@@ -323,16 +329,16 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
       });
 
       const result = await response.json();
-      
+
       if (response.ok) {
         toast({
           title: result.status === 'Accepted' ? 'Solution Accepted!' : 'Solution Submitted',
-          description: result.status === 'Accepted' 
+          description: result.status === 'Accepted'
             ? 'Congratulations! Your solution passed all test cases.'
             : `Status: ${result.status}`,
           variant: result.status === 'Accepted' ? 'default' : 'destructive',
         });
-        
+
         // Update the result to show submission details
         setRunResult({
           status: result.status,
@@ -342,7 +348,7 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
           isSubmission: true
         });
         setActiveLeftTab('submissions');
-        
+
         // Force immediate refresh of submissions
         const refreshToken = await getToken();
         const refreshResponse = await fetch(`/api/submissions?problemId=${problem.id}`, {
@@ -385,24 +391,24 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
                 <TabsTrigger value="description" className="rounded-none data-[state=active]:bg-gray-200 dark:data-[state=active]:bg-gray-700">Description</TabsTrigger>
                 <TabsTrigger value="submissions" className="rounded-none data-[state=active]:bg-gray-200 dark:data-[state=active]:bg-gray-700">Submissions</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="description" className="flex-1 overflow-y-auto min-h-0 data-[state=inactive]:hidden">
                 <div className="h-full">
-                <ProblemDescription problem={problem} />
+                  <ProblemDescription problem={problem} />
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="submissions" className="flex-1 overflow-y-auto min-h-0 data-[state=inactive]:hidden">
                 <div className="h-full">
-                <SubmissionResults submissions={submissions} loading={loading} />
+                  <SubmissionResults submissions={submissions} loading={loading} />
                 </div>
               </TabsContent>
             </Tabs>
           </div>
         </ResizablePanel>
-        
+
         <ResizableHandle />
-        
+
         <ResizablePanel defaultSize={65} minSize={30}>
           <div className="h-full flex flex-col bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <ResizablePanelGroup direction="vertical" className="h-full">
@@ -410,26 +416,26 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
               <ResizablePanel defaultSize={60} minSize={30}>
                 <div className="h-full p-4">
                   <div className="h-full bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <CodeEditor
-            onSubmit={handleSubmit}
-            onRun={handleRun}
-            loading={loading}
-            initialCode={{
-              javascript: typedProblem.starter_code_js,
-              python: typedProblem.starter_code_py,
-              java: typedProblem.starter_code_java,
-              cpp: typedProblem.starter_code_cpp,
-            }}
-            problemId={problem.id}
-            onCodeChange={handleCodeChange}
-            onPasteAutoSubmit={() => autoSubmit('paste')}
-          />
+                    <CodeEditor
+                      onSubmit={handleSubmit}
+                      onRun={handleRun}
+                      loading={loading}
+                      initialCode={{
+                        javascript: typedProblem.starter_code_js,
+                        python: typedProblem.starter_code_py,
+                        java: typedProblem.starter_code_java,
+                        cpp: typedProblem.starter_code_cpp,
+                      }}
+                      problemId={problem.id}
+                      onCodeChange={handleCodeChange}
+                      onPasteAutoSubmit={() => autoSubmit('paste')}
+                    />
                   </div>
                 </div>
               </ResizablePanel>
-              
+
               <ResizableHandle />
-              
+
               {/* Results Section */}
               <ResizablePanel defaultSize={40} minSize={20}>
                 <div className="h-full bg-gray-50 dark:bg-gray-800 flex flex-col">
@@ -443,7 +449,7 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
                         </TabsTrigger>
                       </TabsList>
                     </div>
-                    
+
                     <TabsContent value="testcases" className="flex-1 overflow-y-auto p-4">
                       <div className="space-y-3">
                         <div className="flex items-center gap-2 mb-2">
@@ -452,7 +458,7 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
                             {testCases.length} test cases
                           </span>
                         </div>
-                        
+
                         <div className="space-y-2">
                           {testCases.length > 0 ? (
                             testCases.map((testCase: any, idx: number) => (
@@ -482,7 +488,7 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
                         </div>
                       </div>
                     </TabsContent>
-                    
+
                     <TabsContent value="output" className="flex-1 overflow-y-auto p-4">
                       <div className="space-y-3">
                         {loading ? (
@@ -497,28 +503,25 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
                           <div>
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-sm font-medium">Test Case Results:</span>
-                              <span className={`px-2 py-1 rounded text-xs ${
-                                runResult.results.filter((r: any) => r.passed).length === runResult.results.length
+                              <span className={`px-2 py-1 rounded text-xs ${runResult.results.filter((r: any) => r.passed).length === runResult.results.length
                                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                                   : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                              }`}>
+                                }`}>
                                 {runResult.results.filter((r: any) => r.passed).length} / {runResult.results.length} passed
                               </span>
                             </div>
                             <div className="space-y-2">
                               {runResult.results.map((res: any, idx: number) => (
-                                <div key={idx} className={`p-3 rounded-lg text-xs border shadow-sm ${
-                                  res.passed 
-                                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' 
+                                <div key={idx} className={`p-3 rounded-lg text-xs border shadow-sm ${res.passed
+                                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
                                     : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
-                                }`}>
+                                  }`}>
                                   <div className="flex items-center justify-between mb-1">
                                     <span className="font-medium">Test Case {idx + 1}</span>
-                                    <span className={`px-2 py-0.5 rounded text-xs ${
-                                      res.passed 
-                                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                                    <span className={`px-2 py-0.5 rounded text-xs ${res.passed
+                                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                                         : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                                    }`}>
+                                      }`}>
                                       {res.passed ? 'PASSED' : 'FAILED'}
                                     </span>
                                   </div>
@@ -536,11 +539,10 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-sm font-medium">Execution Result:</span>
-                              <span className={`px-2 py-1 rounded text-xs ${
-                                runResult.status === 'Accepted'
+                              <span className={`px-2 py-1 rounded text-xs ${runResult.status === 'Accepted'
                                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                                   : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                              }`}>
+                                }`}>
                                 {runResult.status}
                               </span>
                             </div>
