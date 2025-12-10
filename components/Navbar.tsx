@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Home, User, Code, Moon, Sun } from 'lucide-react';
+import { Home, User, Code, Moon, Sun, Trophy } from 'lucide-react';
 import { useUser, UserButton } from '@clerk/nextjs';
 import { useEffect, useState } from 'react';
 
@@ -40,11 +40,11 @@ export function Navbar() {
         <div className="w-full px-6 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Link href="/" className="flex items-center space-x-2">
-              <Image 
-                src="/logo.png" 
-                alt="CodeSprint Logo" 
-                width={32} 
-                height={32} 
+              <Image
+                src="/logo.png"
+                alt="CodeSprint Logo"
+                width={32}
+                height={32}
                 className="h-8 w-8"
               />
               <span className="font-bold text-xl text-white">CodeSprint</span>
@@ -52,27 +52,35 @@ export function Navbar() {
           </div>
           <div className="flex items-center space-x-4">
             <div className="hidden md:flex items-center space-x-4">
-              <Link 
-                href="/" 
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${
-                  pathname === '/' 
-                    ? 'bg-gray-800 text-white' 
-                    : 'text-white hover:text-gray-200'
-                }`}
+              <Link
+                href="/"
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${pathname === '/'
+                  ? 'bg-gray-800 text-white'
+                  : 'text-white hover:text-gray-200'
+                  }`}
               >
                 <Home className="h-4 w-4 mr-2" />
                 Home
               </Link>
-              <Link 
-                href="/problems" 
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${
-                  pathname.startsWith('/problems') 
-                    ? 'bg-gray-800 text-white' 
-                    : 'text-white hover:text-gray-200'
-                }`}
+              <Link
+                href="/problems"
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${pathname.startsWith('/problems')
+                  ? 'bg-gray-800 text-white'
+                  : 'text-white hover:text-gray-200'
+                  }`}
               >
                 <Code className="h-4 w-4 mr-2" />
                 Problems
+              </Link>
+              <Link
+                href="/leaderboard"
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${pathname === '/leaderboard'
+                  ? 'bg-gray-800 text-white'
+                  : 'text-white hover:text-gray-200'
+                  }`}
+              >
+                <Trophy className="h-4 w-4 mr-2" />
+                Leaderboard
               </Link>
             </div>
           </div>
@@ -86,11 +94,11 @@ export function Navbar() {
       <div className="w-full px-6 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Link href="/" className="flex items-center space-x-2">
-            <Image 
-              src="/logo.png" 
-              alt="CodeSprint Logo" 
-              width={32} 
-              height={32} 
+            <Image
+              src="/logo.png"
+              alt="CodeSprint Logo"
+              width={32}
+              height={32}
               className="h-8 w-8"
             />
             <span className="font-bold text-xl text-white">CodeSprint</span>
@@ -106,27 +114,35 @@ export function Navbar() {
             {theme === 'dark' ? <Sun className="h-5 w-5 text-yellow-400" /> : <Moon className="h-5 w-5 text-blue-600" />}
           </button>
           <div className="hidden md:flex items-center space-x-4">
-            <Link 
-              href="/" 
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${
-                pathname === '/' 
-                  ? 'bg-gray-800 text-white' 
-                  : 'text-white hover:text-gray-200'
-              }`}
+            <Link
+              href="/"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${pathname === '/'
+                ? 'bg-gray-800 text-white'
+                : 'text-white hover:text-gray-200'
+                }`}
             >
               <Home className="h-4 w-4 mr-2" />
               Home
             </Link>
-            <Link 
-              href="/problems" 
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${
-                pathname.startsWith('/problems') 
-                  ? 'bg-gray-800 text-white' 
-                  : 'text-white hover:text-gray-200'
-              }`}
+            <Link
+              href="/problems"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${pathname.startsWith('/problems')
+                ? 'bg-gray-800 text-white'
+                : 'text-white hover:text-gray-200'
+                }`}
             >
               <Code className="h-4 w-4 mr-2" />
               Problems
+            </Link>
+            <Link
+              href="/leaderboard"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${pathname === '/leaderboard'
+                ? 'bg-gray-800 text-white'
+                : 'text-white hover:text-gray-200'
+                }`}
+            >
+              <Trophy className="h-4 w-4 mr-2" />
+              Leaderboard
             </Link>
           </div>
 
@@ -138,7 +154,7 @@ export function Navbar() {
                   Profile
                 </Button>
               </Link>
-              <UserButton 
+              <UserButton
                 appearance={{
                   elements: {
                     avatarBox: "h-8 w-8"

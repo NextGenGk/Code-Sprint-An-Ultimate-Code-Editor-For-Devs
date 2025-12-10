@@ -51,6 +51,7 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
   const [activeLeftTab, setActiveLeftTab] = useState('description');
   const starterCodeKey = `starter_code_${language === 'cpp' ? 'cpp' : language}` as keyof ProblemWithStarterCode;
   const starterCodeRef = useRef(typedProblem[starterCodeKey] as string);
+  const autoSubmittedRef = useRef(false); // Track if auto-submit has already occurred
 
   // Keep local submissions in sync if userSubmissions changes (e.g. on problem change)
   useEffect(() => {
@@ -107,9 +108,17 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
     console.log(`[AutoSubmit] Called with reason: ${reason}`);
     console.log('[AutoSubmit] Checking conditions:', {
       pendingSubmission,
+      autoSubmitted: autoSubmittedRef.current,
       userId: latestUserIdRef.current,
       problemId: problem.id
     });
+
+    // Check if auto-submit has already occurred for this problem session
+    if (autoSubmittedRef.current) {
+      console.log('[AutoSubmit] Already auto-submitted for this problem, skipping...');
+      return;
+    }
+
     if (
       !pendingSubmission &&
       latestUserIdRef.current &&
@@ -121,6 +130,9 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
       //   code: latestCodeRef.current,
       //   language: latestLanguageRef.current
       // });
+
+      // Set the flag immediately to prevent duplicate submissions
+      autoSubmittedRef.current = true;
       setPendingSubmission(true);
       toast({
         title: 'Auto-submitting',
@@ -154,6 +166,8 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
             variant: 'default',
           });
         } else {
+          // Reset flag on failure so user can try again
+          autoSubmittedRef.current = false;
           toast({
             title: 'Auto-submission failed',
             description: typeof result.error === 'string' ? result.error : JSON.stringify(result.error),
@@ -161,6 +175,8 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
           });
         }
       } catch (error) {
+        // Reset flag on error so user can try again
+        autoSubmittedRef.current = false;
         // [DEBUG] console.log('[AutoSubmit] Error:', error);
         toast({
           title: 'Auto-submission error',
@@ -250,6 +266,7 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
   // Reset submissionSuccess when problem or code changes
   useEffect(() => {
     setSubmissionSuccess(false);
+    autoSubmittedRef.current = false; // Reset auto-submit flag for new problem
   }, [problem.id]);
 
   const handleRun = async (code: string, language: string) => {
@@ -504,8 +521,8 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-sm font-medium">Test Case Results:</span>
                               <span className={`px-2 py-1 rounded text-xs ${runResult.results.filter((r: any) => r.passed).length === runResult.results.length
-                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                                 }`}>
                                 {runResult.results.filter((r: any) => r.passed).length} / {runResult.results.length} passed
                               </span>
@@ -513,14 +530,14 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
                             <div className="space-y-2">
                               {runResult.results.map((res: any, idx: number) => (
                                 <div key={idx} className={`p-3 rounded-lg text-xs border shadow-sm ${res.passed
-                                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-                                    : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
+                                  ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+                                  : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
                                   }`}>
                                   <div className="flex items-center justify-between mb-1">
                                     <span className="font-medium">Test Case {idx + 1}</span>
                                     <span className={`px-2 py-0.5 rounded text-xs ${res.passed
-                                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                                       }`}>
                                       {res.passed ? 'PASSED' : 'FAILED'}
                                     </span>
@@ -540,8 +557,8 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-sm font-medium">Execution Result:</span>
                               <span className={`px-2 py-1 rounded text-xs ${runResult.status === 'Accepted'
-                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                                 }`}>
                                 {runResult.status}
                               </span>
