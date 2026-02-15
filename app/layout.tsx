@@ -6,6 +6,7 @@ import { Navbar } from "@/components/Navbar";
 import { ClerkProvider } from '@clerk/nextjs';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ErrorHandler } from './error-handler';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 export const metadata: Metadata = {
   title: "CodeSprint - Online Coding Platform",
@@ -54,14 +55,16 @@ export default function RootLayout({
       <body className="antialiased">
         <ErrorBoundary>
           <ClerkProvider publishableKey={publishableKey}>
-            <ErrorHandler />
-          <Navbar />
-          <main className="min-h-screen">
-            {children}
-          </main>
+            <ThemeProvider>
+              <ErrorHandler />
+              <Navbar />
+              <main className="min-h-screen">
+                {children}
+              </main>
+            </ThemeProvider>
           </ClerkProvider>
         </ErrorBoundary>
-        </body>
-      </html>
+      </body>
+    </html>
   );
 }

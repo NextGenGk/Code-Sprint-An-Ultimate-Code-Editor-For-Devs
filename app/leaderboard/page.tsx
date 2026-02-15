@@ -60,7 +60,7 @@ export default function LeaderboardPage() {
             case 3:
                 return <Award className="w-6 h-6 text-amber-600" />;
             default:
-                return <span className="text-lg font-bold text-neutral-400">#{rank}</span>;
+                return <span className="text-lg font-bold text-gray-500 dark:text-neutral-400">#{rank}</span>;
         }
     };
 
@@ -73,16 +73,16 @@ export default function LeaderboardPage() {
             case 3:
                 return 'bg-gradient-to-r from-amber-500 to-amber-700 text-white';
             default:
-                return 'bg-gray-800 text-neutral-300';
+                return 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-neutral-300';
         }
     };
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
+            <div className="min-h-screen bg-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-black dark:to-gray-800 flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                    <p className="text-neutral-400">Loading leaderboard...</p>
+                    <p className="text-gray-600 dark:text-neutral-400">Loading leaderboard...</p>
                 </div>
             </div>
         );
@@ -90,9 +90,9 @@ export default function LeaderboardPage() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
+            <div className="min-h-screen bg-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-black dark:to-gray-800 flex items-center justify-center">
                 <div className="text-center">
-                    <p className="text-red-400 mb-4">Error: {error}</p>
+                    <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
                     <button
                         onClick={() => window.location.reload()}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
@@ -105,71 +105,71 @@ export default function LeaderboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
+        <div className="min-h-screen bg-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-black dark:to-gray-800">
             <div className="w-full px-6 py-12">
                 {/* Header */}
                 <div className="text-center mb-12">
                     <div className="flex items-center justify-center gap-3 mb-4">
                         <Trophy className="w-12 h-12 text-yellow-500" />
-                        <h1 className="text-5xl font-bold text-neutral-100">
+                        <h1 className="text-5xl font-bold text-gray-900 dark:text-neutral-100">
                             Leaderboard
                         </h1>
                     </div>
-                    <p className="text-neutral-400 text-lg">
+                    <p className="text-gray-700 dark:text-neutral-400 text-lg">
                         Compete with the best coders and climb to the top!
                     </p>
                 </div>
 
                 {/* Stats Overview */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 max-w-7xl mx-auto">
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 shadow-lg">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-blue-900/30 rounded-lg">
-                                <TrendingUp className="w-6 h-6 text-blue-400" />
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10 max-w-7xl mx-auto">
+                    <div className="pl-6 pr-6 pt-6 pb-6 bg-white/80 dark:bg-gray-800/50 backdrop-blur-md border border-gray-200/60 dark:border-gray-700/60 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                                <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                             </div>
                             <div>
-                                <p className="text-sm text-neutral-400">Total Participants</p>
-                                <p className="text-2xl font-bold text-neutral-100">{leaderboard.length}</p>
+                                <p className="text-sm font-medium text-gray-600 dark:text-neutral-400">Total Participants</p>
+                                <p className="text-3xl font-bold text-gray-900 dark:text-neutral-100">{leaderboard.length}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 shadow-lg">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-green-900/30 rounded-lg">
-                                <CheckCircle2 className="w-6 h-6 text-green-400" />
+                    <div className="pl-6 pr-6 pt-6 pb-6 bg-white/80 dark:bg-gray-800/50 backdrop-blur-md border border-gray-200/60 dark:border-gray-700/60 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
+                                <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-400" />
                             </div>
                             <div>
-                                <p className="text-sm text-neutral-400">Total Solves</p>
-                                <p className="text-2xl font-bold text-neutral-100">
+                                <p className="text-sm font-medium text-gray-600 dark:text-neutral-400">Total Solves</p>
+                                <p className="text-3xl font-bold text-gray-900 dark:text-neutral-100">
                                     {leaderboard.reduce((sum, entry) => sum + entry.problems_solved, 0)}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 shadow-lg">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-purple-900/30 rounded-lg">
-                                <Target className="w-6 h-6 text-purple-400" />
+                    <div className="pl-6 pr-6 pt-6 pb-6 bg-white/80 dark:bg-gray-800/50 backdrop-blur-md border border-gray-200/60 dark:border-gray-700/60 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
+                                <Target className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                             </div>
                             <div>
-                                <p className="text-sm text-neutral-400">Total Submissions</p>
-                                <p className="text-2xl font-bold text-neutral-100">
+                                <p className="text-sm font-medium text-gray-600 dark:text-neutral-400">Total Submissions</p>
+                                <p className="text-3xl font-bold text-gray-900 dark:text-neutral-100">
                                     {leaderboard.reduce((sum, entry) => sum + entry.total_submissions, 0)}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 shadow-lg">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-yellow-900/30 rounded-lg">
-                                <Trophy className="w-6 h-6 text-yellow-400" />
+                    <div className="pl-6 pr-6 pt-6 pb-6 bg-white/80 dark:bg-gray-800/50 backdrop-blur-md border border-gray-200/60 dark:border-gray-700/60 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl">
+                                <Trophy className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
                             </div>
                             <div>
-                                <p className="text-sm text-neutral-400">Avg Acceptance</p>
-                                <p className="text-2xl font-bold text-neutral-100">
+                                <p className="text-sm font-medium text-gray-600 dark:text-neutral-400">Avg Acceptance</p>
+                                <p className="text-3xl font-bold text-gray-900 dark:text-neutral-100">
                                     {leaderboard.length > 0
                                         ? Math.round(
                                             leaderboard.reduce((sum, entry) => sum + entry.acceptance_rate, 0) /
@@ -183,32 +183,32 @@ export default function LeaderboardPage() {
                 </div>
 
                 {/* Leaderboard Table */}
-                <div className="max-w-7xl mx-auto bg-gray-800/50 border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                <div className="max-w-7xl mx-auto bg-white/80 dark:bg-gray-800/50 backdrop-blur-md border border-gray-200/60 dark:border-gray-700/60 rounded-2xl shadow-xl overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-gray-900/80 border-b border-gray-700">
+                            <thead className="bg-gray-50/50 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-700">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-200">Rank</th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-200">User</th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-neutral-200">Score</th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-neutral-200">Solved</th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-neutral-200">
-                                        <span className="text-green-400">Easy</span>
+                                    <th className="px-6 py-5 text-left text-xs font-bold text-gray-600 dark:text-neutral-400 uppercase tracking-wider">Rank</th>
+                                    <th className="px-6 py-5 text-left text-xs font-bold text-gray-600 dark:text-neutral-400 uppercase tracking-wider">User</th>
+                                    <th className="px-6 py-5 text-center text-xs font-bold text-gray-600 dark:text-neutral-400 uppercase tracking-wider">Score</th>
+                                    <th className="px-6 py-5 text-center text-xs font-bold text-gray-600 dark:text-neutral-400 uppercase tracking-wider">Solved</th>
+                                    <th className="px-6 py-5 text-center text-xs font-bold text-gray-600 dark:text-neutral-400 uppercase tracking-wider">
+                                        <span className="text-green-600 dark:text-green-400">Easy</span>
                                     </th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-neutral-200">
-                                        <span className="text-yellow-400">Medium</span>
+                                    <th className="px-6 py-5 text-center text-xs font-bold text-gray-600 dark:text-neutral-400 uppercase tracking-wider">
+                                        <span className="text-yellow-600 dark:text-yellow-400">Medium</span>
                                     </th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-neutral-200">
-                                        <span className="text-red-400">Hard</span>
+                                    <th className="px-6 py-5 text-center text-xs font-bold text-gray-600 dark:text-neutral-400 uppercase tracking-wider">
+                                        <span className="text-red-600 dark:text-red-400">Hard</span>
                                     </th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-neutral-200">Acceptance</th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-neutral-200">Last Active</th>
+                                    <th className="px-6 py-5 text-center text-xs font-bold text-gray-600 dark:text-neutral-400 uppercase tracking-wider">Acceptance</th>
+                                    <th className="px-6 py-5 text-center text-xs font-bold text-gray-600 dark:text-neutral-400 uppercase tracking-wider">Last Active</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-700">
+                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                                 {leaderboard.length === 0 ? (
                                     <tr>
-                                        <td colSpan={9} className="px-6 py-12 text-center text-neutral-400">
+                                        <td colSpan={9} className="px-6 py-12 text-center text-gray-500 dark:text-neutral-400">
                                             No participants yet. Be the first to solve a problem!
                                         </td>
                                     </tr>
@@ -216,9 +216,9 @@ export default function LeaderboardPage() {
                                     leaderboard.map((entry) => (
                                         <tr
                                             key={entry.user_id}
-                                            className={`transition-colors ${entry.user_id === userId
-                                                    ? 'bg-blue-900/20 border-l-4 border-blue-500'
-                                                    : 'hover:bg-gray-700/30'
+                                            className={`transition-colors border-b border-gray-100 dark:border-gray-700/50 last:border-0 ${entry.user_id === userId
+                                                    ? 'bg-blue-50/50 dark:bg-blue-900/20'
+                                                    : 'hover:bg-gray-50/80 dark:hover:bg-gray-700/30'
                                                 }`}
                                         >
                                             {/* Rank */}
@@ -235,7 +235,7 @@ export default function LeaderboardPage() {
                                                         <img
                                                             src={entry.image_url}
                                                             alt={entry.username || entry.full_name || 'User'}
-                                                            className="w-10 h-10 rounded-full border-2 border-gray-600"
+                                                            className="w-10 h-10 rounded-full border-2 border-gray-200 dark:border-gray-600"
                                                         />
                                                     ) : (
                                                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
@@ -243,7 +243,7 @@ export default function LeaderboardPage() {
                                                         </div>
                                                     )}
                                                     <div>
-                                                        <p className="font-semibold text-neutral-100">
+                                                        <p className="font-semibold text-gray-900 dark:text-neutral-100">
                                                             {entry.username || entry.full_name || 'Anonymous'}
                                                             {entry.user_id === userId && (
                                                                 <span className="ml-2 text-xs bg-blue-600 text-white px-2 py-1 rounded-full">
@@ -251,7 +251,7 @@ export default function LeaderboardPage() {
                                                                 </span>
                                                             )}
                                                         </p>
-                                                        <p className="text-sm text-neutral-400">{entry.email}</p>
+                                                        <p className="text-sm text-gray-500 dark:text-neutral-400">{entry.email}</p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -260,7 +260,7 @@ export default function LeaderboardPage() {
                                             <td className="px-6 py-4 text-center">
                                                 <div className="flex items-center justify-center gap-1">
                                                     <Trophy className="w-4 h-4 text-yellow-500" />
-                                                    <span className="font-bold text-lg text-neutral-100">
+                                                    <span className="font-bold text-lg text-gray-900 dark:text-neutral-100">
                                                         {entry.total_score}
                                                     </span>
                                                 </div>
@@ -268,31 +268,31 @@ export default function LeaderboardPage() {
 
                                             {/* Solved */}
                                             <td className="px-6 py-4 text-center">
-                                                <span className="font-semibold text-neutral-100">
+                                                <span className="font-semibold text-gray-900 dark:text-neutral-100">
                                                     {entry.problems_solved}
                                                 </span>
-                                                <span className="text-neutral-400">
+                                                <span className="text-gray-500 dark:text-neutral-400">
                                                     /{entry.problems_attempted}
                                                 </span>
                                             </td>
 
                                             {/* Easy */}
                                             <td className="px-6 py-4 text-center">
-                                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-900/30 text-green-400 font-semibold">
+                                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 font-semibold">
                                                     {entry.easy_solved}
                                                 </span>
                                             </td>
 
                                             {/* Medium */}
                                             <td className="px-6 py-4 text-center">
-                                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-900/30 text-yellow-400 font-semibold">
+                                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 font-semibold">
                                                     {entry.medium_solved}
                                                 </span>
                                             </td>
 
                                             {/* Hard */}
                                             <td className="px-6 py-4 text-center">
-                                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-900/30 text-red-400 font-semibold">
+                                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-semibold">
                                                     {entry.hard_solved}
                                                 </span>
                                             </td>
@@ -300,10 +300,10 @@ export default function LeaderboardPage() {
                                             {/* Acceptance Rate */}
                                             <td className="px-6 py-4 text-center">
                                                 <div className="flex flex-col items-center">
-                                                    <span className="font-semibold text-neutral-100">
+                                                    <span className="font-semibold text-gray-900 dark:text-neutral-100">
                                                         {entry.acceptance_rate.toFixed(1)}%
                                                     </span>
-                                                    <span className="text-xs text-neutral-400">
+                                                    <span className="text-xs text-gray-500 dark:text-neutral-400">
                                                         {entry.accepted_submissions}/{entry.total_submissions}
                                                     </span>
                                                 </div>
@@ -311,7 +311,7 @@ export default function LeaderboardPage() {
 
                                             {/* Last Active */}
                                             <td className="px-6 py-4 text-center">
-                                                <div className="flex items-center justify-center gap-1 text-sm text-neutral-400">
+                                                <div className="flex items-center justify-center gap-1 text-sm text-gray-500 dark:text-neutral-400">
                                                     <Clock className="w-4 h-4" />
                                                     {entry.last_submission_at
                                                         ? new Date(entry.last_submission_at).toLocaleDateString()
