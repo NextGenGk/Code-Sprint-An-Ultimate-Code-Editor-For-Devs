@@ -2,74 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeCode, getSubmissionResult } from '@/lib/judge0/client';
 import { supabaseServer } from '@/lib/supabase/server';
 
-// Helper function to wrap user code with I/O handling
-function wrapCodeWithIO(userCode: string, language: string): string {
-  switch (language) {
-    case 'javascript':
-      return `// Test with hardcoded input first
-const nums = [2, 7, 11, 15];
-const target = 9;
-
-${userCode}
-
-// Execute and output result
-const result = twoSum(nums, target);
-console.log(JSON.stringify(result));`;
-
-    case 'python':
-      return `# Test with hardcoded input first
-nums = [2, 7, 11, 15]
-target = 9
-
-${userCode}
-
-# Execute and output result
-solution = Solution()
-result = solution.twoSum(nums, target)
-print(result)`;
-
-    case 'java':
-      return `import java.util.*;
-
-public class Main {
-    public static void main(String[] args) {
-        // Test with hardcoded input first
-        int[] nums = {2, 7, 11, 15};
-        int target = 9;
-        
-        ${userCode}
-        
-        // Execute and output result
-        Solution solution = new Solution();
-        int[] result = solution.twoSum(nums, target);
-        System.out.println("[" + result[0] + "," + result[1] + "]");
-    }
-}`;
-
-    case 'cpp':
-      return `#include <iostream>
-#include <vector>
-#include <unordered_map>
-using namespace std;
-
-${userCode}
-
-int main() {
-    // Test with hardcoded input first
-    vector<int> nums = {2, 7, 11, 15};
-    int target = 9;
-    
-    // Execute and output result
-    vector<int> result = twoSum(nums, target);
-    cout << "[" << result[0] << "," << result[1] << "]" << endl;
-    
-    return 0;
-}`;
-
-    default:
-      return userCode;
-  }
-}
+// Note: We no longer wrap user code with hardcoded test cases.
+// Instead, we expect the code to already include proper I/O handling
+// from the starter code template stored in the database.
 
 // Helper function to preprocess Java code for Judge0
 function preprocessJavaCode(code: string): string {
@@ -99,24 +34,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if code already has I/O handling (complete starter code)
-    const hasIOHandling = (
-      (language === 'javascript' && code.includes('readFileSync')) ||
-      (language === 'python' && code.includes('sys.stdin')) ||
-      (language === 'java' && code.includes('Scanner')) ||
-      (language === 'cpp' && code.includes('getline'))
-    );
-
-    let processedCode;
-    if (hasIOHandling) {
-      // Use the complete starter code as-is
-      processedCode = code;
-      console.log('Using complete starter code with built-in I/O handling');
-    } else {
-      // Wrap simple user functions with I/O handling
-      processedCode = wrapCodeWithIO(code, language);
-      console.log('Wrapping user code with I/O handling');
-    }
+    // All code should already have I/O handling from the starter templates
+    // stored in the database. We just need to preprocess Java code if needed.
+    let processedCode = code;
 
     if (language === 'java') {
       processedCode = preprocessJavaCode(processedCode);

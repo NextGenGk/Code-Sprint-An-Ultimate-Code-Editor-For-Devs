@@ -14,6 +14,7 @@ interface CodeEditorProps {
   problemId?: string;
   onCodeChange?: (code: string, language: string) => void;
   onPasteAutoSubmit?: (action: string) => void;
+  canSubmit?: boolean;
 }
 
 const LANGUAGE_CONFIGS = {
@@ -68,7 +69,7 @@ const THEME_CONFIGS = [
   { id: 'hc-white', name: 'High Contrast Light', description: 'High contrast light' },
 ];
 
-export function CodeEditor({ onSubmit, onRun, loading, initialCode, problemId, onCodeChange, onPasteAutoSubmit }: CodeEditorProps) {
+export function CodeEditor({ onSubmit, onRun, loading, initialCode, problemId, onCodeChange, onPasteAutoSubmit, canSubmit }: CodeEditorProps) {
   const [language, setLanguage] = useState('javascript');
   const [codeByLanguage, setCodeByLanguage] = useState<Record<string, string>>({});
   const [theme, setTheme] = useState('vs-dark');
@@ -156,7 +157,8 @@ export function CodeEditor({ onSubmit, onRun, loading, initialCode, problemId, o
           </Button>
           <Button
             onClick={() => onSubmit(code, language)}
-            disabled={loading}
+            disabled={loading || !canSubmit}
+            title={!canSubmit ? "Please run your code successfully before submitting" : ""}
           >
             <Upload className="w-4 h-4 mr-2" />
             Submit

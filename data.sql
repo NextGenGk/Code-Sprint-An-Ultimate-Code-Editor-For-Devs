@@ -57,8 +57,8 @@ public class Main {
             String input = sb.toString();
             
             // Parse JSON manually
-            Pattern numsPattern = Pattern.compile("\"nums\":\\\\s*\\\\[([^\\\\]]+)\\\\]");
-            Pattern targetPattern = Pattern.compile("\"target\":\\\\s*(-?\\\\d+)");
+            Pattern numsPattern = Pattern.compile("\\\"nums\\\":\\\\s*\\\\[([^\\\\]]+)\\\\]");
+            Pattern targetPattern = Pattern.compile("\\\"target\\\":\\\\s*(-?\\\\d+)");
             
             Matcher numsMatcher = numsPattern.matcher(input);
             Matcher targetMatcher = targetPattern.matcher(input);

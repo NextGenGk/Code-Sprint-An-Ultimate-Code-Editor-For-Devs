@@ -53,6 +53,8 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
   const starterCodeRef = useRef(typedProblem[starterCodeKey] as string);
   const autoSubmittedRef = useRef(false); // Track if auto-submit has already occurred
 
+  const [lastSuccessfulRunCode, setLastSuccessfulRunCode] = useState<string | null>(null);
+
   // Keep local submissions in sync if userSubmissions changes (e.g. on problem change)
   useEffect(() => {
     setSubmissions(userSubmissions);
@@ -79,6 +81,11 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
     latestLanguageRef.current = language;
     latestUserIdRef.current = user.id;
   }, [code, language, user.id]);
+
+  // Reset lastSuccessfulRunCode when problem changes
+  useEffect(() => {
+    setLastSuccessfulRunCode(null);
+  }, [problem.id]);
 
   // --- Block navigation until submission is successful ---
   useEffect(() => {
@@ -125,12 +132,7 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
       problem.id
     ) {
       console.log('[AutoSubmit] Submitting code...');
-      // [DEBUG] console.log('[AutoSubmit] [SUBMIT] Attempting submission with:', {
-      //   problemId: problem.id,
-      //   code: latestCodeRef.current,
-      //   language: latestLanguageRef.current
-      // });
-
+      
       // Set the flag immediately to prevent duplicate submissions
       autoSubmittedRef.current = true;
       setPendingSubmission(true);
@@ -141,6 +143,7 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
       });
       try {
         const token = await getToken();
+        // Skip run-check for auto-submit to avoid blocking implicit saves/submissions on exit
         const response = await fetch('/api/submissions', {
           method: 'POST',
           headers: {
@@ -156,7 +159,6 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
           }),
         });
         const result = await response.json();
-        // [DEBUG] console.log('[AutoSubmit] Response:', response.status, result);
         if (response.ok) {
           setSubmissionSuccess(true);
           setActiveLeftTab('submissions');
@@ -177,7 +179,6 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
       } catch (error) {
         // Reset flag on error so user can try again
         autoSubmittedRef.current = false;
-        // [DEBUG] console.log('[AutoSubmit] Error:', error);
         toast({
           title: 'Auto-submission error',
           description: error instanceof Error ? error.message : JSON.stringify(error),
@@ -293,6 +294,9 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
       const result = await response.json();
       setRunResult(result);
       if (response.ok) {
+        // Mark this code as run
+        setLastSuccessfulRunCode(code);
+        
         toast({
           title: 'Code executed successfully',
           description: Array.isArray(result.results)
@@ -318,6 +322,16 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
       toast({
         title: 'Authentication required',
         description: 'Please sign in to submit your solution',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Enforce Run before Submit
+    if (code !== lastSuccessfulRunCode) {
+      toast({
+        title: 'Run Required',
+        description: 'Please run your code to verify it before submitting.',
         variant: 'destructive',
       });
       return;
@@ -446,6 +460,7 @@ export function ProblemSolver({ problem, userSubmissions, user }: ProblemSolverP
                       problemId={problem.id}
                       onCodeChange={handleCodeChange}
                       onPasteAutoSubmit={() => autoSubmit('paste')}
+                      canSubmit={code === lastSuccessfulRunCode}
                     />
                   </div>
                 </div>
